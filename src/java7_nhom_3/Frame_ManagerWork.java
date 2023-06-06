@@ -4,13 +4,23 @@
  */
 package java7_nhom_3;
 
+import entities.ComboItem;
 import entities.Employee;
+import entities.ParkingLot;
+import entities.Ticket;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -23,6 +33,7 @@ import javax.swing.table.DefaultTableModel;
 public class Frame_ManagerWork extends javax.swing.JFrame {
 
     private int employeeRowSelected = -1;
+    Map<String, ParkingLot> parkingLots;
 
     /**
      * Creates new form Frame_Management
@@ -39,6 +50,36 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             }
         });
         loadEmployeeTable();
+        
+        parkingLots = new TreeMap<>();
+        try {
+            parkingLots = dataAccess.ParkingLotDataAccess.getParkingLots();
+        } catch (IOException ex) {
+            Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        for (Map.Entry<String, ParkingLot> entry : parkingLots.entrySet()) {
+            Object key = entry.getKey();
+            ParkingLot val = entry.getValue();
+            jComboBox_parkingLot.addItem(val);
+            jComboBox_edit_parkingLot.addItem(val);
+        }
+        
+        
+        
+        
+        //Ticket
+        
+        Set<Ticket> tickets = new TreeSet<>();
+        try {
+            tickets = dataAccess.TicketDataAccess.getTickets();
+        } catch (IOException ex) {
+            Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        DefaultListModel model = new DefaultListModel();
+        jList_tickets.setModel(model);
+        model.addAll(tickets);
+
+       
 
     }
 
@@ -59,7 +100,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jTextField_edit_phoneNumber = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
-        jComboBox_edit_area = new javax.swing.JComboBox<>();
+        jComboBox_edit_parkingLot = new javax.swing.JComboBox<>();
         jButton_save = new javax.swing.JButton();
         jButton_cancel = new javax.swing.JButton();
         jLabel_edit_nameMessage = new javax.swing.JLabel();
@@ -91,7 +132,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jTextField_staffID = new javax.swing.JTextField();
         jTextField_fullName = new javax.swing.JTextField();
         jTextField_phoneNumber = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        jComboBox_parkingLot = new javax.swing.JComboBox<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable_employeeList = new javax.swing.JTable();
         jButton_add = new javax.swing.JButton();
@@ -103,17 +144,13 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jLabel_phoneMessage = new javax.swing.JLabel();
         jLabel_parkingLotMessage = new javax.swing.JLabel();
         jPanel_ticketManagement = new javax.swing.JPanel();
-        jLabel17 = new javax.swing.JLabel();
-        jComboBox_Area = new javax.swing.JComboBox<>();
-        jLabel18 = new javax.swing.JLabel();
-        jComboBox_vehicle = new javax.swing.JComboBox<>();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        jList_tickets = new javax.swing.JList<>();
         jLabel19 = new javax.swing.JLabel();
         jTextField_ticketNumber = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jButton_addTicket = new javax.swing.JButton();
+        jButton_deleteTicket = new javax.swing.JButton();
 
         jDialog_editFrom.setModal(true);
         jDialog_editFrom.setSize(new java.awt.Dimension(500, 400));
@@ -129,7 +166,11 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jLabel14.setText("Parking lot");
 
-        jComboBox_edit_area.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox_edit_parkingLot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox_edit_parkingLotActionPerformed(evt);
+            }
+        });
 
         jButton_save.setText("Save");
         jButton_save.addActionListener(new java.awt.event.ActionListener() {
@@ -172,7 +213,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jDialog_editFromLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel_edit_pakingLotMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jComboBox_edit_area, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                    .addComponent(jComboBox_edit_parkingLot, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(46, 46, 46))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jDialog_editFromLayout.createSequentialGroup()
                         .addGroup(jDialog_editFromLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -218,7 +259,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jDialog_editFromLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel14)
-                    .addComponent(jComboBox_edit_area))
+                    .addComponent(jComboBox_edit_parkingLot))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel_edit_pakingLotMessage)
                 .addGap(38, 38, 38)
@@ -377,8 +418,6 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jLabel9.setText("Parking lot");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         jTable_employeeList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -473,7 +512,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel_staffManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel_parkingLotMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jComboBox1, 0, 192, Short.MAX_VALUE))))
+                                    .addComponent(jComboBox_parkingLot, 0, 192, Short.MAX_VALUE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel_staffManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton_add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -518,7 +557,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 .addGap(7, 7, 7)
                 .addGroup(jPanel_staffManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox_parkingLot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel_parkingLotMessage)
                 .addGap(20, 20, 20)
@@ -528,25 +567,12 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jPanel2.add(jPanel_staffManagement, "card3");
 
-        jLabel17.setText("Area");
-
-        jComboBox_Area.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox_Area.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox_AreaActionPerformed(evt);
+        jList_tickets.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jList_ticketsValueChanged(evt);
             }
         });
-
-        jLabel18.setText("Vehicle");
-
-        jComboBox_vehicle.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane3.setViewportView(jList1);
+        jScrollPane3.setViewportView(jList_tickets);
 
         jLabel19.setText("Ticket number");
 
@@ -554,32 +580,36 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel20.setText("TICKET MANAGEMENT");
 
-        jButton1.setText("Add");
+        jButton_addTicket.setText("Add");
+        jButton_addTicket.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_addTicketActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Delete");
+        jButton_deleteTicket.setText("Delete");
+        jButton_deleteTicket.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_deleteTicketActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel_ticketManagementLayout = new javax.swing.GroupLayout(jPanel_ticketManagement);
         jPanel_ticketManagement.setLayout(jPanel_ticketManagementLayout);
         jPanel_ticketManagementLayout.setHorizontalGroup(
             jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_ticketManagementLayout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGap(40, 40, 40)
+                .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel_ticketManagementLayout.createSequentialGroup()
-                        .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jComboBox_Area, 0, 184, Short.MAX_VALUE)
-                            .addComponent(jComboBox_vehicle, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jTextField_ticketNumber)))
+                        .addComponent(jTextField_ticketNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel_ticketManagementLayout.createSequentialGroup()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(46, 46, 46)
+                        .addComponent(jButton_addTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(97, 97, 97)
+                        .addComponent(jButton_deleteTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(38, 38, 38)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(52, Short.MAX_VALUE))
             .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -593,20 +623,12 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel_ticketManagementLayout.createSequentialGroup()
                         .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel17)
-                            .addComponent(jComboBox_Area, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel18)
-                            .addComponent(jComboBox_vehicle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel19)
                             .addComponent(jTextField_ticketNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(71, 71, 71)
+                        .addGap(39, 39, 39)
                         .addGroup(jPanel_ticketManagementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2)))
+                            .addComponent(jButton_addTicket)
+                            .addComponent(jButton_deleteTicket)))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(162, Short.MAX_VALUE))
         );
@@ -658,29 +680,35 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             //TODO:
             return;
         }
+             
         
         jLabel_edit_nameMessage.setText("");
         jLabel_edit_phoneMessage.setText("");
+        jLabel_edit_pakingLotMessage.setText("");
         jLabel_edit_pakingLotMessage.setText("");
 
         jTextField_edit_staffID.setText(jTable_employeeList.getValueAt(employeeRowSelected, 1).toString());
         jTextField_edit_fullName.setText(jTable_employeeList.getValueAt(employeeRowSelected, 2).toString());
         jTextField_edit_phoneNumber.setText(jTable_employeeList.getValueAt(employeeRowSelected, 3).toString());
+        String parkingLotIdSelected = jTable_employeeList.getValueAt(employeeRowSelected, 4).toString();
+        
+        ParkingLot parkingLotSelected = parkingLots.get(parkingLotIdSelected);
+        jComboBox_edit_parkingLot.setSelectedItem(parkingLotSelected);
+
+        System.out.println(parkingLots.get(parkingLotIdSelected));
+               
 
 //        jDialog_editFrom.setBounds(0, 0, 400, 500);
         jDialog_editFrom.setVisible(true);
     }//GEN-LAST:event_jButton_editActionPerformed
-
-    private void jComboBox_AreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_AreaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox_AreaActionPerformed
 
     private void jButton_addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_addActionPerformed
         // TODO add your handling code here:
         String id = jTextField_staffID.getText();
         String name = jTextField_fullName.getText();
         String phoneNumber = jTextField_phoneNumber.getText();
-
+        String parkingLotId = ((ParkingLot)jComboBox_parkingLot.getSelectedItem()).getId();
+        System.out.println(parkingLotId);
         jLabel_idMessage.setText("");
         jLabel_nameMessage.setText("");
         jLabel_phoneMessage.setText("");
@@ -733,7 +761,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
                 return;
             }
-            dataAccess.EmployeeDataAccess.addEmployee(new Employee(id, name, phoneNumber, "p002"));
+            dataAccess.EmployeeDataAccess.addEmployee(new Employee(id, name, phoneNumber, parkingLotId));
             loadEmployeeTable();
         } catch (IOException ex) {
             System.out.println("error");
@@ -776,6 +804,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         String id = jTextField_edit_staffID.getText();
         String name = jTextField_edit_fullName.getText();
         String phoneNumber = jTextField_edit_phoneNumber.getText();
+        String parkingLot = ((ParkingLot)jComboBox_edit_parkingLot.getSelectedItem()).getId();
         //validate
         boolean flag = true;
         //validate
@@ -813,7 +842,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             return;
         }
         //
-        Employee e = new Employee(id, name, phoneNumber, "p02");
+        Employee e = new Employee(id, name, phoneNumber, parkingLot);
         try {
             dataAccess.EmployeeDataAccess.editEmpoyee(id, e);
             loadEmployeeTable();
@@ -828,6 +857,92 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         // TODO add your handling code here:
         jDialog_editFrom.dispose();
     }//GEN-LAST:event_jButton_cancelActionPerformed
+
+    private void jComboBox_edit_parkingLotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_edit_parkingLotActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox_edit_parkingLotActionPerformed
+
+    private void jButton_deleteTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_deleteTicketActionPerformed
+        // TODO add your handling code here:
+        
+        String ticketSeleted = jTextField_ticketNumber.getText().trim();
+        
+        if(ticketSeleted.isEmpty()){
+            JOptionPane.showMessageDialog(this, "No ticket was selected");
+            return;
+        }else{
+            Set<Ticket> tickets = new TreeSet<>();
+            
+            try {
+                tickets = dataAccess.TicketDataAccess.getTickets();
+            } catch (IOException ex) {
+                Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            if (tickets.contains(new Ticket(ticketSeleted))){
+                
+                try {
+                    dataAccess.TicketDataAccess.deleteTicket(ticketSeleted);
+                    tickets = dataAccess.TicketDataAccess.getTickets();
+                } catch (IOException ex) {
+                    Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
+                model.clear();
+                model.addAll(tickets);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "This ticket is not exsits");
+            }
+        }
+        
+        
+//        DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
+//        model.clear();
+        
+       
+    }//GEN-LAST:event_jButton_deleteTicketActionPerformed
+
+    private void jList_ticketsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList_ticketsValueChanged
+        // TODO add your handling code here:
+        if(jList_tickets.getSelectedIndex() != -1){
+            System.out.println(jList_tickets.getSelectedValue());
+            String ticketSelected = jList_tickets.getSelectedValue().toString();
+            jTextField_ticketNumber.setText(ticketSelected);
+        }
+        
+    }//GEN-LAST:event_jList_ticketsValueChanged
+
+    private void jButton_addTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_addTicketActionPerformed
+        // TODO add your handling code here:
+        String ticket = jTextField_ticketNumber.getText().trim();
+        
+        if(ticket.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Empty value");
+        }else{
+            Set<Ticket> tickets = new TreeSet<>();
+            
+            try {
+                tickets = dataAccess.TicketDataAccess.getTickets();
+            } catch (IOException ex) {
+                Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if(tickets.contains(new Ticket(ticket))){
+                JOptionPane.showMessageDialog(this, "This ticket was existed");
+            }
+            else{
+                try {
+                    dataAccess.TicketDataAccess.addTicket(new Ticket(ticket));
+                    tickets = dataAccess.TicketDataAccess.getTickets();
+                    DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
+                    model.clear();
+                    model.addAll(tickets);
+                } catch (IOException ex) {
+                    Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_jButton_addTicketActionPerformed
 
     private void loadEmployeeTable() {
         DefaultTableModel model = (DefaultTableModel) jTable_employeeList.getModel();
@@ -887,22 +1002,20 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton_add;
+    private javax.swing.JButton jButton_addTicket;
     private javax.swing.JButton jButton_cancel;
     private javax.swing.JButton jButton_delete;
+    private javax.swing.JButton jButton_deleteTicket;
     private javax.swing.JButton jButton_edit;
     private javax.swing.JButton jButton_general;
     private javax.swing.JButton jButton_save;
     private javax.swing.JButton jButton_staffManagement;
     private javax.swing.JButton jButton_ticketManagement;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox_Area;
     private javax.swing.JComboBox<String> jComboBox_area;
-    private javax.swing.JComboBox<String> jComboBox_edit_area;
-    private javax.swing.JComboBox<String> jComboBox_vehicle;
+    private javax.swing.JComboBox<ParkingLot> jComboBox_edit_parkingLot;
+    private javax.swing.JComboBox<ParkingLot> jComboBox_parkingLot;
     private javax.swing.JDialog jDialog_editFrom;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
@@ -910,8 +1023,6 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
@@ -932,7 +1043,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel_numsOfMoto;
     private javax.swing.JLabel jLabel_parkingLotMessage;
     private javax.swing.JLabel jLabel_phoneMessage;
-    private javax.swing.JList<String> jList1;
+    private javax.swing.JList<Ticket> jList_tickets;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel_general;

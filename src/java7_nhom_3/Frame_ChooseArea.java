@@ -5,9 +5,17 @@
 package java7_nhom_3;
 
 import entities.Employee;
+import entities.ParkingLot;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -19,17 +27,24 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
      * Creates new form Frame_ChooseArea
      */
     
-    public HashMap<String, Employee> employees = new HashMap<>();
     
+    Map<String, Employee> employees;
     
     public Frame_ChooseArea() {
         
         initComponents();
         //TODO
-        //đổ dữ liệu vào combobox        
-       
-        
-        
+        //
+        employees = new TreeMap<>();
+        try {
+            employees = dataAccess.EmployeeDataAccess.getEmployees();
+            for (Map.Entry<String, Employee> entry : employees.entrySet()) {
+                Object key = entry.getKey();
+                Object val = entry.getValue();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Frame_ChooseArea.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -42,12 +57,8 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox_Area = new javax.swing.JComboBox<>();
         btn_continue = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jComboBox_shift = new javax.swing.JComboBox<>();
         jTextField_staffId = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -57,11 +68,7 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
         jLabel1.setText("PARKING MANAGEMENT");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        jLabel2.setText("Area");
-
-        jLabel3.setText("Staff");
-
-        jComboBox_Area.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jLabel3.setText("Staff ID");
 
         btn_continue.setText("Continue");
         btn_continue.addActionListener(new java.awt.event.ActionListener() {
@@ -69,10 +76,6 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
                 btn_continueActionPerformed(evt);
             }
         });
-
-        jLabel4.setText("Shift");
-
-        jComboBox_shift.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -82,20 +85,11 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(47, 47, 47)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox_shift, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox_Area, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btn_continue, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn_continue)
-                            .addComponent(jTextField_staffId))))
+                        .addComponent(jTextField_staffId)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -103,21 +97,13 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jComboBox_Area, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jComboBox_shift, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
+                .addGap(72, 72, 72)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jTextField_staffId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(50, 50, 50)
                 .addComponent(btn_continue)
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         pack();
@@ -127,15 +113,15 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
         // TODO add your handling code here:
         
         boolean match;
-        // xác định khu vực, ca làm việc, nhân viên trực
         
         
-        
-        match = true;
+        String employeeId = jTextField_staffId.getText();
+        match = employees.containsKey(employeeId);
+     
         if(match){
             new Frame_StaffWork().setVisible(true);
         }else{
-            //Không khớp, thử lại
+            JOptionPane.showMessageDialog(this, "Employee ID is wrong");
         }
         
         
@@ -180,12 +166,8 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_continue;
-    private javax.swing.JComboBox<String> jComboBox_Area;
-    private javax.swing.JComboBox<String> jComboBox_shift;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField jTextField_staffId;
     // End of variables declaration//GEN-END:variables
 }

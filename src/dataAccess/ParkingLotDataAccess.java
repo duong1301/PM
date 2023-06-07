@@ -39,7 +39,8 @@ public class ParkingLotDataAccess {
             line = br.readLine();
         }
              
-        
+        br.close();
+        fr.close();
         return parkingLots;
         
     }
@@ -53,15 +54,15 @@ public class ParkingLotDataAccess {
     public static void addParkingLot(ParkingLot p) throws FileNotFoundException, IOException{
         File file = new File("./src/data/parkingLot.txt");
         System.out.println(file.exists());
-        FileWriter fr = new FileWriter(file, true);
-        BufferedWriter br = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(file, true);
+        BufferedWriter bw = new BufferedWriter(fw);
         
-        br.write(p.toString());
-        br.newLine();
+        bw.write(p.toString());
+        bw.newLine();
         
         
-        br.close();
-        fr.close();        
+        bw.close();
+        fw.close();        
         
     }
     
@@ -71,8 +72,8 @@ public class ParkingLotDataAccess {
         Map<String, ParkingLot> parkingLots = getParkingLots();
         
         parkingLots.replace(id, p);
-        FileWriter fr = new FileWriter(file);
-        BufferedWriter bw = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
         
         for (Map.Entry<String, ParkingLot> entry : parkingLots.entrySet()) {
             Object key = entry.getKey();
@@ -83,25 +84,25 @@ public class ParkingLotDataAccess {
         }
         
         bw.close();
-        fr.close();
+        fw.close();
     }
     public static void deleteParkingLot(String id) throws IOException{
         File file = new File("./src/data/parkingLot.txt");
         Map<String, ParkingLot> parkingLots = getParkingLots();
         parkingLots.remove(id);
         
-        FileWriter fr = new FileWriter(file);
-        BufferedWriter br = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
         
         for (Map.Entry<String, ParkingLot> entry : parkingLots.entrySet()) {
             Object key = entry.getKey();
             Object val = entry.getValue();
-            br.write(val.toString());
-            br.newLine();
+            bw.write(val.toString());
+            bw.newLine();
         }
         
-        br.close();
-        fr.close();
+        bw.close();
+        fw.close();
         
     }
 }

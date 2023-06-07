@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -119,7 +120,12 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
         match = employees.containsKey(employeeId);
      
         if(match){
-            new Frame_StaffWork().setVisible(true);
+            
+           
+//            new Frame_StaffWork().setVisible(true);            
+            new Frame_StaffWork(employees.get(employeeId)).setVisible(true);
+
+            this.dispose();
         }else{
             JOptionPane.showMessageDialog(this, "Employee ID is wrong");
         }

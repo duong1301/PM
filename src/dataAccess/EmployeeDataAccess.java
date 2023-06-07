@@ -44,6 +44,9 @@ public class EmployeeDataAccess {
                                 
         }
         
+        br.close();
+        fr.close();
+        
         return employees;
     }
     
@@ -54,14 +57,14 @@ public class EmployeeDataAccess {
     }
     
     public static void addEmployee(Employee e) throws IOException{
-        FileWriter fr = new FileWriter(FILE, true);
-        BufferedWriter bw = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(FILE, true);
+        BufferedWriter bw = new BufferedWriter(fw);
         
         bw.write(e.toString());
         bw.write("\n");
         
         bw.close();
-        fr.close();
+        fw.close();
         
     }
     
@@ -70,8 +73,8 @@ public class EmployeeDataAccess {
         
         employees.replace(id, e);
         
-        FileWriter fr = new FileWriter(FILE);
-        BufferedWriter bw = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(FILE);
+        BufferedWriter bw = new BufferedWriter(fw);
         
         for (Map.Entry<String, Employee> entry : employees.entrySet()) {
             Object key = entry.getKey();
@@ -82,7 +85,7 @@ public class EmployeeDataAccess {
         }
         
         bw.close();
-        fr.close();
+        fw.close();
         
     }
     
@@ -92,8 +95,8 @@ public class EmployeeDataAccess {
             employees.remove(id);
         }
         
-        FileWriter fr = new FileWriter(FILE);
-        BufferedWriter bw = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(FILE);
+        BufferedWriter bw = new BufferedWriter(fw);
         
         for (Map.Entry<String, Employee> entry : employees.entrySet()) {
             Object key = entry.getKey();
@@ -104,6 +107,6 @@ public class EmployeeDataAccess {
         }
         
         bw.close();
-        fr.close();
+        fw.close();
     }
 }

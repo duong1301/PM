@@ -40,7 +40,8 @@ public class TicketDataAccess {
             
             
         }
-        
+        br.close();
+        fr.close();
         return tickets;
         
     }
@@ -49,29 +50,29 @@ public class TicketDataAccess {
         Set<Ticket> tickets = getTickets();
         if(tickets.contains(new Ticket(ticketNum))){
             System.out.println("delete");
-            FileWriter fr = new FileWriter(FILE);
-            BufferedWriter br = new BufferedWriter(fr);
+            FileWriter fw = new FileWriter(FILE);
+            BufferedWriter bw = new BufferedWriter(fw);
             tickets.remove(new Ticket(ticketNum));
             
             for (Ticket ticket : tickets) {
-                br.write(ticket.toString());
-                br.newLine();
+                bw.write(ticket.toString());
+                bw.newLine();
             }
             
-            br.close();
-            fr.close();
+            bw.close();
+            fw.close();
         }
     }
     
     public static void addTicket(Ticket t) throws IOException{
-        FileWriter fr = new FileWriter(FILE, true);
-        BufferedWriter br = new BufferedWriter(fr);
+        FileWriter fw = new FileWriter(FILE, true);
+        BufferedWriter bw = new BufferedWriter(fw);
         
-        br.write(t.toString());
-        br.newLine();
+        bw.write(t.toString());
+        bw.newLine();
         
-        br.close();
-        fr.close();
+        bw.close();
+        fw.close();
         
     }
     

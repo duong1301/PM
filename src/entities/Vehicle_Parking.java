@@ -8,26 +8,33 @@ package entities;
  *
  * @author LA
  */
-public class Vehicle_ParkingLot {
-    Ticket ticket;
+public class Vehicle_Parking {
+    String parkingLotID;
+    String ticket;
     String licensePlate;
     Vehicle type;
     String timeIn;
     String timeOut;
-    String parkingFee;
-    boolean isPriority;
+    boolean priority; 
 
-    public Vehicle_ParkingLot(Ticket ticket, String licensePlate, Vehicle type, String timeIn, String timeOut, String parkingFee, boolean isPriority) {
+    public Vehicle_Parking(String parkingLotID, String ticket, String licensePlate, Vehicle type, String timeIn, String timeOut, boolean priority) {
+        this.parkingLotID = parkingLotID;
         this.ticket = ticket;
         this.licensePlate = licensePlate;
         this.type = type;
         this.timeIn = timeIn;
         this.timeOut = timeOut;
-        this.parkingFee = parkingFee;
-        this.isPriority = isPriority;
+        this.priority = priority;
     }
 
-    public Ticket getTicket() {
+    public Vehicle_Parking() {
+    }
+
+    public String getParkingLotID() {
+        return parkingLotID;
+    }
+
+    public String getTicket() {
         return ticket;
     }
 
@@ -47,15 +54,15 @@ public class Vehicle_ParkingLot {
         return timeOut;
     }
 
-    public String getParkingFee() {
-        return parkingFee;
+    public boolean isPriority() {
+        return priority;
     }
 
-    public boolean isIsPriority() {
-        return isPriority;
+    public void setParkingLotID(String parkingLotID) {
+        this.parkingLotID = parkingLotID;
     }
 
-    public void setTicket(Ticket ticket) {
+    public void setTicket(String ticket) {
         this.ticket = ticket;
     }
 
@@ -75,28 +82,25 @@ public class Vehicle_ParkingLot {
         this.timeOut = timeOut;
     }
 
-    public void setParkingFee(String parkingFee) {
-        this.parkingFee = parkingFee;
-    }
-
-    public void setIsPriority(boolean isPriority) {
-        this.isPriority = isPriority;
+    public void setPriority(boolean priority) {
+        this.priority = priority;
     }
 
     @Override
     public String toString() {
+        
         return (
                 ""
-                +this.ticket.toString()+"|"
-                +this.licensePlate+"|"
-                +this.type+"|"
+                +this.parkingLotID +"|"
+                +this.ticket +"|"
+                +this.licensePlate +"|"
+                +this.type +"|"
                 +this.timeIn +"|"
-                +this.timeOut+"|"
-                +this.parkingFee
-        
-                
+                +this.timeOut +"|"
+                +(this.isPriority()? "1":"0")
         );
     }
+    
     
     
     

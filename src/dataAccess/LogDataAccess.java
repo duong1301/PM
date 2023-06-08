@@ -123,17 +123,7 @@ public class LogDataAccess {
         return logs;
     }
     
-    public static void main(String[] args) {
-        try {
-            System.out.println("loger");
-            List<VehicleLoger> logs = getLogs("20230608");
-            for (VehicleLoger log : logs) {
-                System.out.println(log.toString());
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(LogDataAccess.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+   
     
     
 }

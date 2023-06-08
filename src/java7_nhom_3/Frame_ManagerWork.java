@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,17 +54,16 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
      */
     public Frame_ManagerWork() {
         initComponents();
-        
-        
+
         String spinnerDatePattern = "dd/MM/yyyy";
-        
+
         SpinnerDateModel model_startDate = new SpinnerDateModel();
-        jSpinner_startDate.setModel(model_startDate);        
-        jSpinner_startDate.setEditor(new JSpinner.DateEditor(jSpinner_startDate,spinnerDatePattern));
-        
+        jSpinner_startDate.setModel(model_startDate);
+        jSpinner_startDate.setEditor(new JSpinner.DateEditor(jSpinner_startDate, spinnerDatePattern));
+
         SpinnerDateModel model_endDate = new SpinnerDateModel();
         jSpinner_endDate.setModel(model_endDate);
-        jSpinner_endDate.setEditor(new JSpinner.DateEditor(jSpinner_endDate,spinnerDatePattern));
+        jSpinner_endDate.setEditor(new JSpinner.DateEditor(jSpinner_endDate, spinnerDatePattern));
 
         getLogs(
                 LocalDate.now(),
@@ -138,43 +138,42 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         model.addAll(tickets);
 
     }
-    
-//    public void static renderLogsTable(){
-//    getLogs(
-//                LocalDate.now(),
-//                LocalDate.now());
-//        System.out.println("log");
-//        for (VehicleLoger log : logs) {
-//
-//            System.out.println(log.toString());
-//
-//        }
-//        DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
-//        int i = 0;
-//        for (VehicleLoger log : logs) {
-//
-////                modelLogs.addRow(new Object[]{"1"});
-//            modelLogs.addRow(new Object[]{
-//                ++i,
-//                log.getTicket(),
-//                log.getLicensePlate(),
-//                log.getType(),
-//                log.getTimeOut().split("\\-")[0],
-//                log.getTimeIn().split("\\-")[1],
-//                log.getTimeOut().split("\\-")[1],
-//                log.getParkingLotID(),
-//                log.getParkingFee()
-//            });
-//        }
-//        jTable_logs.setModel(modelLogs);
-//    }
+
+    public void renderLogsTable(LocalDate start, LocalDate end) {
+        DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
+        modelLogs.setRowCount(0);
+        getLogs(start, end);
+        ParkingLot p = (ParkingLot) jComboBox_home_parkingLot.getSelectedItem();
+        String parkingLotID = p.getId();
+        int i = 0;
+
+        for (VehicleLoger log : logs) {
+            if (parkingLotID == null
+                    || parkingLotID.compareTo(log.getParkingLotID()) == 0) {
+                modelLogs.addRow(new Object[]{
+                    ++i,
+                    log.getTicket(),
+                    log.getLicensePlate(),
+                    log.getType(),
+                    log.getTimeOut().split("\\-")[0],
+                    log.getTimeIn().split("\\-")[1],
+                    log.getTimeOut().split("\\-")[1],
+                    log.getParkingLotID(),
+                    log.getParkingFee()
+                });
+
+            }
+
+        }
+        jTable_logs.setModel(modelLogs);
+    }
 
     public static void getLogs(LocalDate start, LocalDate end) {
+        logs.clear();
         if (start.isAfter(end)) {
             return;
         }
 
-        logs.clear();
         end = end.plusDays(1);
 
         Stream<LocalDate> s = start.datesUntil(end);
@@ -232,6 +231,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jSpinner_startDate = new javax.swing.JSpinner();
         jSpinner_endDate = new javax.swing.JSpinner();
+        jButton2 = new javax.swing.JButton();
         jPanel_staffManagement = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -479,6 +479,13 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jSpinner_startDate.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1686250972035L), null, null, java.util.Calendar.DAY_OF_MONTH));
 
+        jButton2.setText("Revenue");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel_generalLayout = new javax.swing.GroupLayout(jPanel_general);
         jPanel_general.setLayout(jPanel_generalLayout);
         jPanel_generalLayout.setHorizontalGroup(
@@ -491,17 +498,17 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             .addGroup(jPanel_generalLayout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel_generalLayout.createSequentialGroup()
-                        .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jComboBox_home_parkingLot, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jSpinner_startDate, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
-                            .addComponent(jSpinner_endDate))))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jComboBox_home_parkingLot, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jSpinner_startDate, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                        .addComponent(jSpinner_endDate))
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel_generalLayout.setVerticalGroup(
@@ -522,7 +529,9 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(jSpinner_endDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(9, 9, 9)
-                .addComponent(jButton1)
+                .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(66, 66, 66))
@@ -1062,14 +1071,25 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         // TODO add your handling code here:
         Date start = (Date) jSpinner_startDate.getValue();
         Date end = (Date) jSpinner_endDate.getValue();
-        
+
         LocalDate startDate = LocalDate.of(start.getYear() + 1900, start.getMonth() + 1, start.getDate());
         LocalDate endDate = LocalDate.of(end.getYear() + 1900, end.getMonth() + 1, end.getDate());
-
+        renderLogsTable(startDate, endDate);
         System.out.println(startDate);
         System.out.println(endDate);
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        int total = 0;
+        for (VehicleLoger log : logs) {
+            total += log.getParkingFee();
+            
+        }
+        System.out.println(total);
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void loadEmployeeTable() {
         DefaultTableModel model = (DefaultTableModel) jTable_employeeList.getModel();
@@ -1130,6 +1150,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton_add;
     private javax.swing.JButton jButton_addTicket;
     private javax.swing.JButton jButton_cancel;

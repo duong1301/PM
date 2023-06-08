@@ -4,13 +4,19 @@
  */
 package java7_nhom_3;
 
-import entities.ComboItem;
 import entities.Employee;
 import entities.ParkingLot;
 import entities.Ticket;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import entities.VehicleLoger;
+
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -18,13 +24,19 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
 
 /**
  *
@@ -34,12 +46,52 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
     private int employeeRowSelected = -1;
     Map<String, ParkingLot> parkingLots;
+    static List<VehicleLoger> logs = new ArrayList<>();
 
     /**
      * Creates new form Frame_Management
      */
     public Frame_ManagerWork() {
         initComponents();
+        
+        
+        String spinnerDatePattern = "dd/MM/yyyy";
+        
+        SpinnerDateModel model_startDate = new SpinnerDateModel();
+        jSpinner_startDate.setModel(model_startDate);        
+        jSpinner_startDate.setEditor(new JSpinner.DateEditor(jSpinner_startDate,spinnerDatePattern));
+        
+        SpinnerDateModel model_endDate = new SpinnerDateModel();
+        jSpinner_endDate.setModel(model_endDate);
+        jSpinner_endDate.setEditor(new JSpinner.DateEditor(jSpinner_endDate,spinnerDatePattern));
+
+        getLogs(
+                LocalDate.now(),
+                LocalDate.now());
+        System.out.println("log");
+        for (VehicleLoger log : logs) {
+
+            System.out.println(log.toString());
+
+        }
+        DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
+        int i = 0;
+        for (VehicleLoger log : logs) {
+
+//                modelLogs.addRow(new Object[]{"1"});
+            modelLogs.addRow(new Object[]{
+                ++i,
+                log.getTicket(),
+                log.getLicensePlate(),
+                log.getType(),
+                log.getTimeOut().split("\\-")[0],
+                log.getTimeIn().split("\\-")[1],
+                log.getTimeOut().split("\\-")[1],
+                log.getParkingLotID(),
+                log.getParkingFee()
+            });
+        }
+        jTable_logs.setModel(modelLogs);
 
         ListSelectionModel employeeListSelectionModel = jTable_employeeList.getSelectionModel();
         employeeListSelectionModel.addListSelectionListener(new ListSelectionListener() {
@@ -50,25 +102,31 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             }
         });
         loadEmployeeTable();
-        
+
         parkingLots = new TreeMap<>();
         try {
             parkingLots = dataAccess.ParkingLotDataAccess.getParkingLots();
         } catch (IOException ex) {
             Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        jComboBox_home_parkingLot.addItem(new ParkingLot() {
+            @Override
+            public String toString() {
+                return "All parking lot";
+            }
+
+        });
+
         for (Map.Entry<String, ParkingLot> entry : parkingLots.entrySet()) {
             Object key = entry.getKey();
             ParkingLot val = entry.getValue();
             jComboBox_parkingLot.addItem(val);
             jComboBox_edit_parkingLot.addItem(val);
+            jComboBox_home_parkingLot.addItem(val);
         }
-        
-        
-        
-        
+
         //Ticket
-        
         Set<Ticket> tickets = new TreeSet<>();
         try {
             tickets = dataAccess.TicketDataAccess.getTickets();
@@ -79,7 +137,59 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jList_tickets.setModel(model);
         model.addAll(tickets);
 
-       
+    }
+    
+//    public void static renderLogsTable(){
+//    getLogs(
+//                LocalDate.now(),
+//                LocalDate.now());
+//        System.out.println("log");
+//        for (VehicleLoger log : logs) {
+//
+//            System.out.println(log.toString());
+//
+//        }
+//        DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
+//        int i = 0;
+//        for (VehicleLoger log : logs) {
+//
+////                modelLogs.addRow(new Object[]{"1"});
+//            modelLogs.addRow(new Object[]{
+//                ++i,
+//                log.getTicket(),
+//                log.getLicensePlate(),
+//                log.getType(),
+//                log.getTimeOut().split("\\-")[0],
+//                log.getTimeIn().split("\\-")[1],
+//                log.getTimeOut().split("\\-")[1],
+//                log.getParkingLotID(),
+//                log.getParkingFee()
+//            });
+//        }
+//        jTable_logs.setModel(modelLogs);
+//    }
+
+    public static void getLogs(LocalDate start, LocalDate end) {
+        if (start.isAfter(end)) {
+            return;
+        }
+
+        logs.clear();
+        end = end.plusDays(1);
+
+        Stream<LocalDate> s = start.datesUntil(end);
+        s.forEach(action -> {
+
+            String log = action.format(DateTimeFormatter.BASIC_ISO_DATE);
+            System.out.println(log);
+            try {
+                List<VehicleLoger> v = dataAccess.LogDataAccess.getLogs(log);
+                logs.addAll(v);
+            } catch (IOException ex) {
+                Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        });
 
     }
 
@@ -114,16 +224,14 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jPanel_general = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jComboBox_home_parkingLot = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable_logs = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jComboBox_area = new javax.swing.JComboBox<>();
-        jLabel_numsOfMoto = new javax.swing.JLabel();
-        jLabel_numsOfBicyle = new javax.swing.JLabel();
-        jLabel_numsOfCar = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        jSpinner_startDate = new javax.swing.JSpinner();
+        jSpinner_endDate = new javax.swing.JSpinner();
         jPanel_staffManagement = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -324,62 +432,77 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("GENERAL INFORMATION");
 
-        jLabel2.setText("Area");
+        jLabel2.setText("Parking lot");
 
-        jLabel3.setText("Motorbikes");
-
-        jLabel4.setText(" Bicycles");
-
-        jLabel5.setText("Cars");
-
-        jComboBox_area.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jLabel_numsOfMoto.setText("500");
-
-        jLabel_numsOfBicyle.setText("100");
-
-        jLabel_numsOfCar.setText("10");
-
-        jButton4.setText("Revenue ");
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTable_logs.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Order", "Ticket", "Licenes plate", "Vehicle", "Date", "Time in", "Time out", "Parking lot", "Parking fee"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, true, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable_logs);
+        if (jTable_logs.getColumnModel().getColumnCount() > 0) {
+            jTable_logs.getColumnModel().getColumn(0).setResizable(false);
+            jTable_logs.getColumnModel().getColumn(0).setPreferredWidth(20);
+            jTable_logs.getColumnModel().getColumn(1).setPreferredWidth(50);
+            jTable_logs.getColumnModel().getColumn(6).setPreferredWidth(50);
+            jTable_logs.getColumnModel().getColumn(8).setPreferredWidth(50);
+        }
+
+        jLabel3.setText("From");
+
+        jLabel4.setText("To");
+
+        jButton1.setText("Check");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jSpinner_startDate.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1686250972035L), null, null, java.util.Calendar.DAY_OF_MONTH));
 
         javax.swing.GroupLayout jPanel_generalLayout = new javax.swing.GroupLayout(jPanel_general);
         jPanel_general.setLayout(jPanel_generalLayout);
         jPanel_generalLayout.setHorizontalGroup(
             jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_generalLayout.createSequentialGroup()
+                .addContainerGap(15, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 688, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15))
             .addGroup(jPanel_generalLayout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 529, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel_generalLayout.createSequentialGroup()
                         .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(27, 27, 27)
-                        .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel_numsOfCar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel_numsOfBicyle, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel_numsOfMoto, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel_generalLayout.createSequentialGroup()
-                                .addComponent(jComboBox_area, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(36, 36, 36)
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(40, Short.MAX_VALUE))
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jComboBox_home_parkingLot, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSpinner_startDate, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                            .addComponent(jSpinner_endDate))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel_generalLayout.setVerticalGroup(
             jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -389,22 +512,19 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jComboBox_area, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
+                    .addComponent(jComboBox_home_parkingLot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel_numsOfMoto))
+                    .addComponent(jSpinner_startDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel_numsOfBicyle))
+                    .addComponent(jSpinner_endDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addComponent(jButton1)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel_generalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel_numsOfCar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(66, 66, 66))
         );
 
@@ -519,7 +639,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                             .addComponent(jButton_edit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton_delete, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 544, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(147, Short.MAX_VALUE))
             .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel_staffManagementLayout.setVerticalGroup(
@@ -562,7 +682,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 .addComponent(jLabel_parkingLotMessage)
                 .addGap(20, 20, 20)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         jPanel2.add(jPanel_staffManagement, "card3");
@@ -611,7 +731,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                         .addComponent(jButton_deleteTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(38, 38, 38)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(171, Short.MAX_VALUE))
             .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel_ticketManagementLayout.setVerticalGroup(
@@ -630,7 +750,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                             .addComponent(jButton_addTicket)
                             .addComponent(jButton_deleteTicket)))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(162, Short.MAX_VALUE))
+                .addContainerGap(171, Short.MAX_VALUE))
         );
 
         jPanel2.add(jPanel_ticketManagement, "card2");
@@ -680,8 +800,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             //TODO:
             return;
         }
-             
-        
+
         jLabel_edit_nameMessage.setText("");
         jLabel_edit_phoneMessage.setText("");
         jLabel_edit_pakingLotMessage.setText("");
@@ -691,12 +810,11 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jTextField_edit_fullName.setText(jTable_employeeList.getValueAt(employeeRowSelected, 2).toString());
         jTextField_edit_phoneNumber.setText(jTable_employeeList.getValueAt(employeeRowSelected, 3).toString());
         String parkingLotIdSelected = jTable_employeeList.getValueAt(employeeRowSelected, 4).toString();
-        
+
         ParkingLot parkingLotSelected = parkingLots.get(parkingLotIdSelected);
         jComboBox_edit_parkingLot.setSelectedItem(parkingLotSelected);
 
         System.out.println(parkingLots.get(parkingLotIdSelected));
-               
 
 //        jDialog_editFrom.setBounds(0, 0, 400, 500);
         jDialog_editFrom.setVisible(true);
@@ -707,7 +825,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         String id = jTextField_staffID.getText();
         String name = jTextField_fullName.getText();
         String phoneNumber = jTextField_phoneNumber.getText();
-        String parkingLotId = ((ParkingLot)jComboBox_parkingLot.getSelectedItem()).getId();
+        String parkingLotId = ((ParkingLot) jComboBox_parkingLot.getSelectedItem()).getId();
         System.out.println(parkingLotId);
         jLabel_idMessage.setText("");
         jLabel_nameMessage.setText("");
@@ -804,7 +922,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         String id = jTextField_edit_staffID.getText();
         String name = jTextField_edit_fullName.getText();
         String phoneNumber = jTextField_edit_phoneNumber.getText();
-        String parkingLot = ((ParkingLot)jComboBox_edit_parkingLot.getSelectedItem()).getId();
+        String parkingLot = ((ParkingLot) jComboBox_edit_parkingLot.getSelectedItem()).getId();
         //validate
         boolean flag = true;
         //validate
@@ -837,8 +955,8 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         }
 
         //
-        if(!flag){
-        
+        if (!flag) {
+
             return;
         }
         //
@@ -864,23 +982,23 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
     private void jButton_deleteTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_deleteTicketActionPerformed
         // TODO add your handling code here:
-        
+
         String ticketSeleted = jTextField_ticketNumber.getText().trim();
-        
-        if(ticketSeleted.isEmpty()){
+
+        if (ticketSeleted.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No ticket was selected");
             return;
-        }else{
+        } else {
             Set<Ticket> tickets = new TreeSet<>();
-            
+
             try {
                 tickets = dataAccess.TicketDataAccess.getTickets();
             } catch (IOException ex) {
                 Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            if (tickets.contains(new Ticket(ticketSeleted))){
-                
+
+            if (tickets.contains(new Ticket(ticketSeleted))) {
+
                 try {
                     dataAccess.TicketDataAccess.deleteTicket(ticketSeleted);
                     tickets = dataAccess.TicketDataAccess.getTickets();
@@ -890,47 +1008,43 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
                 model.clear();
                 model.addAll(tickets);
-            }
-            else{
+            } else {
                 JOptionPane.showMessageDialog(this, "This ticket is not exsits");
             }
         }
-        
-        
+
 //        DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
 //        model.clear();
-        
-       
+
     }//GEN-LAST:event_jButton_deleteTicketActionPerformed
 
     private void jList_ticketsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList_ticketsValueChanged
         // TODO add your handling code here:
-        if(jList_tickets.getSelectedIndex() != -1){
+        if (jList_tickets.getSelectedIndex() != -1) {
             System.out.println(jList_tickets.getSelectedValue());
             String ticketSelected = jList_tickets.getSelectedValue().toString();
             jTextField_ticketNumber.setText(ticketSelected);
         }
-        
+
     }//GEN-LAST:event_jList_ticketsValueChanged
 
     private void jButton_addTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_addTicketActionPerformed
         // TODO add your handling code here:
         String ticket = jTextField_ticketNumber.getText().trim();
-        
-        if(ticket.isEmpty()){
+
+        if (ticket.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Empty value");
-        }else{
+        } else {
             Set<Ticket> tickets = new TreeSet<>();
-            
+
             try {
                 tickets = dataAccess.TicketDataAccess.getTickets();
             } catch (IOException ex) {
                 Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if(tickets.contains(new Ticket(ticket))){
+            if (tickets.contains(new Ticket(ticket))) {
                 JOptionPane.showMessageDialog(this, "This ticket was existed");
-            }
-            else{
+            } else {
                 try {
                     dataAccess.TicketDataAccess.addTicket(new Ticket(ticket));
                     tickets = dataAccess.TicketDataAccess.getTickets();
@@ -943,6 +1057,19 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButton_addTicketActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        Date start = (Date) jSpinner_startDate.getValue();
+        Date end = (Date) jSpinner_endDate.getValue();
+        
+        LocalDate startDate = LocalDate.of(start.getYear() + 1900, start.getMonth() + 1, start.getDate());
+        LocalDate endDate = LocalDate.of(end.getYear() + 1900, end.getMonth() + 1, end.getDate());
+
+        System.out.println(startDate);
+        System.out.println(endDate);
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void loadEmployeeTable() {
         DefaultTableModel model = (DefaultTableModel) jTable_employeeList.getModel();
@@ -1002,7 +1129,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton_add;
     private javax.swing.JButton jButton_addTicket;
     private javax.swing.JButton jButton_cancel;
@@ -1013,8 +1140,8 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JButton jButton_save;
     private javax.swing.JButton jButton_staffManagement;
     private javax.swing.JButton jButton_ticketManagement;
-    private javax.swing.JComboBox<String> jComboBox_area;
     private javax.swing.JComboBox<ParkingLot> jComboBox_edit_parkingLot;
+    private javax.swing.JComboBox<ParkingLot> jComboBox_home_parkingLot;
     private javax.swing.JComboBox<ParkingLot> jComboBox_parkingLot;
     private javax.swing.JDialog jDialog_editFrom;
     private javax.swing.JLabel jLabel1;
@@ -1028,7 +1155,6 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -1038,9 +1164,6 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel_edit_phoneMessage;
     private javax.swing.JLabel jLabel_idMessage;
     private javax.swing.JLabel jLabel_nameMessage;
-    private javax.swing.JLabel jLabel_numsOfBicyle;
-    private javax.swing.JLabel jLabel_numsOfCar;
-    private javax.swing.JLabel jLabel_numsOfMoto;
     private javax.swing.JLabel jLabel_parkingLotMessage;
     private javax.swing.JLabel jLabel_phoneMessage;
     private javax.swing.JList<Ticket> jList_tickets;
@@ -1052,8 +1175,10 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JSpinner jSpinner_endDate;
+    private javax.swing.JSpinner jSpinner_startDate;
     private javax.swing.JTable jTable_employeeList;
+    private javax.swing.JTable jTable_logs;
     private javax.swing.JTextField jTextField_edit_fullName;
     private javax.swing.JTextField jTextField_edit_phoneNumber;
     private javax.swing.JTextField jTextField_edit_staffID;

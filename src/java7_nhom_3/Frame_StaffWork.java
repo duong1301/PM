@@ -8,6 +8,7 @@ import entities.Employee;
 import entities.Price;
 import entities.Ticket;
 import entities.Vehicle;
+import entities.VehicleLoger;
 import entities.Vehicle_Parking;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -592,6 +593,9 @@ public class Frame_StaffWork extends javax.swing.JFrame {
             default:
                 throw new AssertionError();
         }
+        if(v.isPriority()){
+            parkingFee = 0;
+        }
         jLabel_checkOut_ParkingFee.setText("" + parkingFee);
 
         jDialog_CheckOut.setVisible(true);
@@ -608,7 +612,27 @@ public class Frame_StaffWork extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             dataAccess.Vehicle_ParkingDataAccess.removeVehicle(jLabel_checkOut_ticket.getText());
-            dataAccess.LogDataAccess.add(vehicleParkingCheckOut);
+            int parkingFee = 0;
+            if(vehicleParkingCheckOut.isPriority()){
+                parkingFee = 0;
+            }else
+            {
+                switch (vehicleParkingCheckOut.getType()) {
+                    
+                    case MOTORBIKE:
+                        parkingFee = Price.MOTORBIKE.getPrice();
+                        break;
+                    case BIKECYCLE:
+                        parkingFee = Price.BIKECYCLE.getPrice();
+                        break;
+                    case CAR:
+                        parkingFee = Price.CAR.getPrice();
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+            dataAccess.LogDataAccess.add(new VehicleLoger (vehicleParkingCheckOut,parkingFee));
             jTextField_out_licensePlate.setText("");
             jTextField_out_ticketNumber.setText("");
             jDialog_CheckOut.dispose();

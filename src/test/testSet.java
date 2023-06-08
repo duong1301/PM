@@ -4,39 +4,30 @@
  */
 package test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
+
 /**
  *
  * @author LA
  */
-public class testSet implements Comparable<testSet>{
-    String data;
+public class testSet {
+    
+    public static void getDateRange(LocalDate start, LocalDate end){
+        if(start.isAfter(end)){
+            return;
+        }
+        System.out.println(start.isBefore(end));
 
-    public testSet() {
-    }
-
-    public testSet(String data) {
-        this.data = data;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "testSet{" + "data=" + data + '}';
-    }
-
-   
-
-    @Override
-    public int compareTo(testSet o) {
-        return this.data.compareTo(o.data);
+        Stream<LocalDate> s = start.datesUntil(end);
+        s.forEach(action->{
+            System.out.println(
+                    action.format(DateTimeFormatter.ISO_DATE));});
     }
     
-    
+    public static void main(String[] args) {
+        getDateRange(LocalDate.MIN, LocalDate.MAX);
+    }
 }

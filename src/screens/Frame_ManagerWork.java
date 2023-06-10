@@ -2,21 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package java7_nhom_3;
+package screens;
 
 import entities.Employee;
 import entities.ParkingLot;
 import entities.Ticket;
-import entities.VehicleLoger;
+import entities.LoggedVehicle;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,18 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
-import javax.swing.JSpinner;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerDateModel;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DateFormatter;
 
 /**
  *
@@ -47,7 +35,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
     private int employeeRowSelected = -1;
     Map<String, ParkingLot> parkingLots;
-    static List<VehicleLoger> logs = new ArrayList<>();
+    static List<LoggedVehicle> logs = new ArrayList<>();
 
     /**
      * Creates new form Frame_Management
@@ -69,14 +57,14 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                 LocalDate.now(),
                 LocalDate.now());
         System.out.println("log");
-        for (VehicleLoger log : logs) {
+        for (LoggedVehicle log : logs) {
 
             System.out.println(log.toString());
 
         }
         DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
         int i = 0;
-        for (VehicleLoger log : logs) {
+        for (LoggedVehicle log : logs) {
 
 //                modelLogs.addRow(new Object[]{"1"});
             modelLogs.addRow(new Object[]{
@@ -94,13 +82,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jTable_logs.setModel(modelLogs);
 
         ListSelectionModel employeeListSelectionModel = jTable_employeeList.getSelectionModel();
-        employeeListSelectionModel.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                employeeRowSelected = jTable_employeeList.getSelectedRow();
-
-            }
-        });
+        employeeListSelectionModel.addListSelectionListener(e -> employeeRowSelected = jTable_employeeList.getSelectedRow());
         loadEmployeeTable();
 
         parkingLots = new TreeMap<>();
@@ -115,15 +97,12 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
             public String toString() {
                 return "All parking lot";
             }
-
         });
 
-        for (Map.Entry<String, ParkingLot> entry : parkingLots.entrySet()) {
-            Object key = entry.getKey();
-            ParkingLot val = entry.getValue();
-            jComboBox_parkingLot.addItem(val);
-            jComboBox_edit_parkingLot.addItem(val);
-            jComboBox_home_parkingLot.addItem(val);
+        for(ParkingLot lot : parkingLots.values()){
+            jComboBox_parkingLot.addItem(lot);
+            jComboBox_edit_parkingLot.addItem(lot);
+            jComboBox_home_parkingLot.addItem(lot);
         }
 
         //Ticket
@@ -133,13 +112,13 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
         }
-        DefaultListModel model = new DefaultListModel();
-        jList_tickets.setModel(model);
+        DefaultListModel model = new DefaultListModel<>();
         model.addAll(tickets);
+        jList_tickets.setModel(model);
 
     }
 
-    public void renderLogsTable(LocalDate start, LocalDate end) {
+    public void renderLogTable(LocalDate start, LocalDate end) {
         DefaultTableModel modelLogs = (DefaultTableModel) jTable_logs.getModel();
         modelLogs.setRowCount(0);
         getLogs(start, end);
@@ -147,7 +126,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         String parkingLotID = p.getId();
         int i = 0;
 
-        for (VehicleLoger log : logs) {
+        for (LoggedVehicle log : logs) {
             if (parkingLotID == null
                     || parkingLotID.compareTo(log.getParkingLotID()) == 0) {
                 modelLogs.addRow(new Object[]{
@@ -161,33 +140,27 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                     log.getParkingLotID(),
                     log.getParkingFee()
                 });
-
             }
-
         }
         jTable_logs.setModel(modelLogs);
     }
 
     public static void getLogs(LocalDate start, LocalDate end) {
         logs.clear();
-        if (start.isAfter(end)) {
-            return;
-        }
-
+        if (start.isAfter(end)) return;
+        
         end = end.plusDays(1);
 
         Stream<LocalDate> s = start.datesUntil(end);
         s.forEach(action -> {
-
             String log = action.format(DateTimeFormatter.BASIC_ISO_DATE);
             System.out.println(log);
             try {
-                List<VehicleLoger> v = dataAccess.LogDataAccess.getLogs(log);
+                List<LoggedVehicle> v = dataAccess.LogDataAccess.getLogs(log);
                 logs.addAll(v);
             } catch (IOException ex) {
                 Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         });
 
     }
@@ -274,25 +247,13 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jLabel14.setText("Parking lot");
 
-        jComboBox_edit_parkingLot.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox_edit_parkingLotActionPerformed(evt);
-            }
-        });
+        jComboBox_edit_parkingLot.addActionListener(this::jComboBox_edit_parkingLotActionPerformed);
 
         jButton_save.setText("Save");
-        jButton_save.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_saveActionPerformed(evt);
-            }
-        });
+        jButton_save.addActionListener(this::jButton_saveActionPerformed);
 
         jButton_cancel.setText("Cancel");
-        jButton_cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_cancelActionPerformed(evt);
-            }
-        });
+        jButton_cancel.addActionListener(this::jButton_cancelActionPerformed);
 
         jLabel_edit_nameMessage.setForeground(new java.awt.Color(255, 0, 0));
         jLabel_edit_nameMessage.setText("jLabel10");
@@ -382,25 +343,13 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
 
         jButton_general.setText("General");
-        jButton_general.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_generalActionPerformed(evt);
-            }
-        });
+        jButton_general.addActionListener(this::jButton_generalActionPerformed);
 
         jButton_staffManagement.setText("Staff management");
-        jButton_staffManagement.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_staffManagementActionPerformed(evt);
-            }
-        });
+        jButton_staffManagement.addActionListener(this::jButton_staffManagementActionPerformed);
 
         jButton_ticketManagement.setText("Ticket management");
-        jButton_ticketManagement.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_ticketManagementActionPerformed(evt);
-            }
-        });
+        jButton_ticketManagement.addActionListener(this::jButton_ticketManagementActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -428,7 +377,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.CardLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("GENERAL INFORMATION");
 
@@ -471,20 +420,12 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         jLabel4.setText("To");
 
         jButton1.setText("Check");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jSpinner_startDate.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1686250972035L), null, null, java.util.Calendar.DAY_OF_MONTH));
 
         jButton2.setText("Revenue");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
+        jButton2.addActionListener(this::jButton2ActionPerformed);
 
         javax.swing.GroupLayout jPanel_generalLayout = new javax.swing.GroupLayout(jPanel_general);
         jPanel_general.setLayout(jPanel_generalLayout);
@@ -577,27 +518,15 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         }
 
         jButton_add.setText("Add");
-        jButton_add.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_addActionPerformed(evt);
-            }
-        });
+        jButton_add.addActionListener(this::jButton_addActionPerformed);
 
         jButton_edit.setText("Edit");
-        jButton_edit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_editActionPerformed(evt);
-            }
-        });
+        jButton_edit.addActionListener(this::jButton_editActionPerformed);
 
         jButton_delete.setText("Delete");
-        jButton_delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_deleteActionPerformed(evt);
-            }
-        });
+        jButton_delete.addActionListener(this::jButton_deleteActionPerformed);
 
-        jLabel16.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel16.setText("STAFF MANAGEMENT");
         jLabel16.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -696,32 +625,20 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         jPanel2.add(jPanel_staffManagement, "card3");
 
-        jList_tickets.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                jList_ticketsValueChanged(evt);
-            }
-        });
+        jList_tickets.addListSelectionListener(this::jList_ticketsValueChanged);
         jScrollPane3.setViewportView(jList_tickets);
 
         jLabel19.setText("Ticket number");
 
-        jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel20.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel20.setText("TICKET MANAGEMENT");
 
         jButton_addTicket.setText("Add");
-        jButton_addTicket.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_addTicketActionPerformed(evt);
-            }
-        });
+        jButton_addTicket.addActionListener(this::jButton_addTicketActionPerformed);
 
         jButton_deleteTicket.setText("Delete");
-        jButton_deleteTicket.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_deleteTicketActionPerformed(evt);
-            }
-        });
+        jButton_deleteTicket.addActionListener(this::jButton_deleteTicketActionPerformed);
 
         javax.swing.GroupLayout jPanel_ticketManagementLayout = new javax.swing.GroupLayout(jPanel_ticketManagement);
         jPanel_ticketManagement.setLayout(jPanel_ticketManagementLayout);
@@ -971,7 +888,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         //
         Employee e = new Employee(id, name, phoneNumber, parkingLot);
         try {
-            dataAccess.EmployeeDataAccess.editEmpoyee(id, e);
+            dataAccess.EmployeeDataAccess.editEmployee(id, e);
             loadEmployeeTable();
         } catch (IOException ex) {
             Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
@@ -997,30 +914,29 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         if (ticketSeleted.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No ticket was selected");
             return;
-        } else {
-            Set<Ticket> tickets = new TreeSet<>();
+        }
+        Set<Ticket> tickets = new TreeSet<>();
 
+        try {
+            tickets = dataAccess.TicketDataAccess.getTickets();
+        } catch (IOException ex) {
+            Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (tickets.contains(new Ticket(ticketSeleted))) {
             try {
+                dataAccess.TicketDataAccess.deleteTicket(ticketSeleted);
                 tickets = dataAccess.TicketDataAccess.getTickets();
             } catch (IOException ex) {
                 Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
             }
+            DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
+            model.clear();
+            model.addAll(tickets);
+        } else
+            JOptionPane.showMessageDialog(this, "This ticket is not exsits");
 
-            if (tickets.contains(new Ticket(ticketSeleted))) {
 
-                try {
-                    dataAccess.TicketDataAccess.deleteTicket(ticketSeleted);
-                    tickets = dataAccess.TicketDataAccess.getTickets();
-                } catch (IOException ex) {
-                    Logger.getLogger(Frame_ManagerWork.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
-                model.clear();
-                model.addAll(tickets);
-            } else {
-                JOptionPane.showMessageDialog(this, "This ticket is not exsits");
-            }
-        }
 
 //        DefaultListModel model = (DefaultListModel) jList_tickets.getModel();
 //        model.clear();
@@ -1074,21 +990,23 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
 
         LocalDate startDate = LocalDate.of(start.getYear() + 1900, start.getMonth() + 1, start.getDate());
         LocalDate endDate = LocalDate.of(end.getYear() + 1900, end.getMonth() + 1, end.getDate());
-        renderLogsTable(startDate, endDate);
+        if (endDate.isBefore(startDate)) {
+            JOptionPane.showMessageDialog(this,
+                    "Oops! Date interval is not valid.");
+//            return;
+        }
+        renderLogTable(startDate, endDate);
         System.out.println(startDate);
         System.out.println(endDate);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        int total = 0;
-        for (VehicleLoger log : logs) {
-            total += log.getParkingFee();
-            
-        }
-        System.out.println(total);
-        
+        int totalRevenue = logs.stream()
+                .mapToInt(LoggedVehicle::getParkingFee)
+                .sum();
+        JOptionPane.showMessageDialog(this,"Total revenue: %d".formatted(totalRevenue));
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void loadEmployeeTable() {
@@ -1113,7 +1031,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -1126,13 +1044,8 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Frame_ManagerWork.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Frame_ManagerWork.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Frame_ManagerWork.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException |
+                 IllegalAccessException | UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Frame_ManagerWork.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
@@ -1141,11 +1054,7 @@ public class Frame_ManagerWork extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Frame_ManagerWork().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new Frame_ManagerWork().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

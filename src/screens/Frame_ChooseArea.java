@@ -2,21 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package java7_nhom_3;
+package screens;
 
 import entities.Employee;
-import entities.ParkingLot;
+
+import java.awt.*;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  *
@@ -28,23 +23,15 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
      * Creates new form Frame_ChooseArea
      */
     
-    
     Map<String, Employee> employees;
     
     public Frame_ChooseArea() {
-        
         initComponents();
-        //TODO
-        //
-        employees = new TreeMap<>();
         try {
             employees = dataAccess.EmployeeDataAccess.getEmployees();
-            for (Map.Entry<String, Employee> entry : employees.entrySet()) {
-                Object key = entry.getKey();
-                Object val = entry.getValue();
-            }
         } catch (IOException ex) {
-            Logger.getLogger(Frame_ChooseArea.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Frame_ChooseArea.class.getName())
+                  .log(Level.SEVERE, null, ex);
         }
     }
 
@@ -64,7 +51,7 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("PARKING MANAGEMENT");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -112,32 +99,21 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
 
     private void btn_continueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_continueActionPerformed
         // TODO add your handling code here:
-        
-        boolean match;
-        
-        
         String employeeId = jTextField_staffId.getText();
-        match = employees.containsKey(employeeId);
+        boolean hasThisEmployee = employees.containsKey(employeeId);
      
-        if(match){
-            
-           
-//            new Frame_StaffWork().setVisible(true);            
+        if (hasThisEmployee){
             new Frame_StaffWork(employees.get(employeeId)).setVisible(true);
-
             this.dispose();
-        }else{
-            JOptionPane.showMessageDialog(this, "Employee ID is wrong");
-        }
-        
-        
-        
+        } else
+            JOptionPane.showMessageDialog(this,
+                                          "Employee ID is wrong");
     }//GEN-LAST:event_btn_continueActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -150,21 +126,16 @@ public class Frame_ChooseArea extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Frame_ChooseArea.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Frame_ChooseArea.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Frame_ChooseArea.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Frame_ChooseArea.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException |
+                 IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Frame_ChooseArea.class.getName())
+                                    .log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                
                 new Frame_ChooseArea().setVisible(true);
             }
         });

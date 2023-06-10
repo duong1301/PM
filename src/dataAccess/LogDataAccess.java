@@ -1,20 +1,16 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default
+ * .txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit
+ * this template
  */
 package dataAccess;
 
 
-import entities.Vehicle;
-import entities.VehicleLoger;
-import entities.Vehicle_Parking;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import entities.LoggedVehicle;
+import entities.VehicleType;
+
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,107 +19,76 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author LA
  */
 public class LogDataAccess {
-    
-    static final String PATH = "./src/data/log/log";
-    
-    public static void add(VehicleLoger v) throws IOException{
-        
-        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        File file = new File(PATH + date +".txt");
-        if(!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException ex) {
-                Logger.getLogger(LogDataAccess.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        
-        FileWriter fw = new FileWriter(file,true);
-        BufferedWriter bw = new BufferedWriter(fw);
-        
-        bw.write(v.toString());
-        bw.newLine();
-        
-        bw.close();
-        fw.close();
-        
-        System.out.println(file.exists());
-        System.out.println(file);
-        
-    }
-    
-    public static List<VehicleLoger> getLogs(String log) throws FileNotFoundException, IOException{
-        String logPath = PATH + log + ".txt";
-        
-        List<VehicleLoger> logs = new ArrayList<>();
-        File file = new File(logPath);
-        if(file.exists()){
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            
-            String line = br.readLine();
-            
-            String parkingID;
-            String ticket;
-            String licensePlate;
-            String type;
-            String timeIn;
-            String timeOut;
-            String priority;
-            String parkingFee;
-            
-            while(true){
-                if(line == null){
-                    break;
-                }
-                String [] logsInfor = line.split("\\|");
-//                System.out.println(logsInfor.);
-                parkingID = logsInfor[0];
-                ticket = logsInfor[1];
-                licensePlate= logsInfor[2];
-                type= logsInfor[3];
-                Vehicle vehicleType;
-                timeIn= logsInfor[4];
-                timeOut= logsInfor[5];
-                priority= logsInfor[6];
-                parkingFee=logsInfor[7];
-                
-                switch (type) {
-                    case "MOTORBIKE":
-                        vehicleType = Vehicle.MOTORBIKE;
-                        break;
-                    case "BIKECYCLE":
-                        vehicleType = Vehicle.BIKECYCLE;
-                        break;
-                    case "CAR":
-                        vehicleType = Vehicle.CAR;
-                        break;    
-                    default:
-                        throw new AssertionError();
-                }
-                
-                
-                int parkingFeeInt = Integer.parseInt(parkingFee);
-                VehicleLoger v = new VehicleLoger(parkingFeeInt, parkingID, ticket, licensePlate, vehicleType, timeIn, timeOut, priority == "1");
-                System.out.println(v.toString());
-                logs.add(v);
-                line = br.readLine();
-            }
-            
-            
-            
-            
-        }
-            
-            
-        return logs;
-    }
-    
-   
-    
-    
+	static final String PATH = "./src/data/log/log";
+
+	public static void add(LoggedVehicle v) throws IOException {
+		String date = LocalDateTime.now().format(
+				DateTimeFormatter.ofPattern(
+						"yyyyMMdd"));
+		File file = new File(PATH + date + ".txt");
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException ex) {
+				Logger.getLogger(LogDataAccess.class.getName())
+				      .log(Level.SEVERE, null, ex);
+			}
+		}
+
+		FileWriter fw = new FileWriter(file, true);
+		BufferedWriter bw = new BufferedWriter(fw);
+
+		bw.write(v.toString());
+		bw.newLine();
+
+		bw.close();
+		fw.close();
+
+		System.out.println(file.exists());
+		System.out.println(file);
+
+	}
+
+	public static List<LoggedVehicle> getLogs(String log) throws IOException {
+		List<LoggedVehicle> logs = new ArrayList<>();
+
+		final String logPath = PATH + log + ".txt";
+		File file = new File(logPath);
+
+		if (file.exists()) {
+			FileReader fr = new FileReader(file);
+			BufferedReader br = new BufferedReader(fr);
+
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] logsInform = line.split("\\|");
+
+				String parkingID = logsInform[0];
+				String ticket = logsInform[1];
+				String licensePlate = logsInform[2];
+				String type = logsInform[3];
+				String timeIn = logsInform[4];
+				String timeOut = logsInform[5];
+				String priority = logsInform[6];
+				String parkingFee = logsInform[7];
+
+				LoggedVehicle v =
+						new LoggedVehicle(Integer.parseInt(parkingFee),
+						                  parkingID,
+						                  ticket,
+						                  licensePlate,
+						                  VehicleType.valueOf(type),
+						                  timeIn,
+						                  timeOut,
+						                  priority.equals("1")
+						);
+				System.out.println(v);
+				logs.add(v);
+			}
+		}
+		return logs;
+	}
 }
